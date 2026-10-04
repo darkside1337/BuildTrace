@@ -1,3 +1,17 @@
+BuildTrace is a portfolio web app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup.
+
+Package manager: pnpm
+
+For product scope, workflows, and acceptance criteria, see docs/PRD.md.
+For feature boundaries, shop isolation, stock transactions, and server-side access checks, see docs/ARCHITECTURE.md.
+For phased tasks and current progress, see docs/ROADMAP.md.
+For visual design, responsive layouts, and component usage, see DESIGN.md.
+
+## Roadmap maintenance
+
+- When work completes a roadmap item, mark its checkbox complete in the same turn after implementation and verification.
+- If an item is only partly complete, leave it open and record the remaining work in the roadmap.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

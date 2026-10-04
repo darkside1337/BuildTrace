@@ -13,6 +13,12 @@
 # testing
 /coverage
 
+# local roadmap
+/docs/ROADMAP.md
+
+# local design experiments (served by Next.js during development)
+/app/design-lab/
+
 # next.js
 /.next/
 /out/
@@ -39,3 +45,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/.plans
