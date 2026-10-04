@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
 
 # local roadmap
 /docs/ROADMAP.md
@@ -21,6 +23,7 @@
 
 # next.js
 /.next/
+/.next-e2e-*/
 /out/
 
 # production

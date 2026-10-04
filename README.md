@@ -41,7 +41,7 @@ pnpm bootstrap:owner -- --shop-name "Example PC Shop" \
 
 The command can be rerun with the same identities. It creates no public sign-up route and grants no access based on email alone. Then open `/sign-in` and choose GitHub or Google.
 
-`pnpm dev` uses Next.js's default Turbopack bundler. The production build explicitly uses Webpack; verify the documented development command separately when checking setup.
+`pnpm dev` uses Next.js's default Turbopack bundler. The production build and browser-test servers explicitly use Webpack; verify the documented development command separately when checking setup.
 
 The versioned migrations include Better Auth, shop membership, and catalog tables. Generate future migrations after changing the Drizzle schema with `pnpm db:generate`, review the SQL, then apply them with `pnpm db:migrate`.
 
@@ -56,6 +56,16 @@ pnpm build
 pnpm test:unit
 ```
 
+Database and browser verification requires the configured shared Neon database:
+
+```sh
+pnpm test:integration
+pnpm test:e2e:install
+pnpm test:e2e
+```
+
+`pnpm test:integration` applies migrations and writes temporary fixtures inside transactions against the shared database, then rolls those fixtures back. It is not read-only. It does not reset or truncate the database. The browser suite starts local servers on ports 3333–3335: one uses the configured Neon URL, one simulates missing configuration, and one uses a reserved invalid domain to simulate connection failure.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -68,3 +78,7 @@ pnpm test:unit
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Server-side Google OAuth app credentials. |
 
 The app validates that both database URLs use PostgreSQL and identify the same Neon database and role. Missing or mismatched database configuration shows setup guidance without returning credentials or raw driver errors.
+
+## CI
+
+The GitHub Actions workflow runs lint, type checking, build, unit tests, migration/integration checks, and browser checks. Configure `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET`, and both provider credential pairs as repository secrets. Neon checks share the development database and are serialized; tests must not reset or truncate shared data.
