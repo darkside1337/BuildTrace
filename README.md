@@ -1,6 +1,6 @@
 # BuildTrace
 
-BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup.
+BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup. OAuth-only sign-in grants access to provisioned shop accounts.
 
 ## Requirements
 
@@ -28,6 +28,21 @@ pnpm db:migrate
 pnpm dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000). The entry screen reports whether the app can reach Neon. If connection settings change, restart `pnpm dev` and select **Check connection again**.
+
+Configure Better Auth and both OAuth applications in `.env` or `.env.local`. Register `http://localhost:3000/api/auth/callback/github` and `http://localhost:3000/api/auth/callback/google` as the local provider callback URLs. Set `BETTER_AUTH_URL` to `http://localhost:3000`, use a random `BETTER_AUTH_SECRET` with at least 32 characters, and keep all provider credentials server-side.
+
+After applying migrations, provision only the intended Owner identities. Obtain the stable numeric GitHub account ID and Google `sub` for the Owner, then run:
+
+```sh
+pnpm bootstrap:owner -- --shop-name "Example PC Shop" \
+  --github-id "<GitHub numeric account ID>" --google-id "<Google sub>"
+```
+
+The command can be rerun with the same identities. It creates no public sign-up route and grants no access based on email alone. Then open `/sign-in` and choose GitHub or Google.
+
+`pnpm dev` uses Next.js's default Turbopack bundler. The production build explicitly uses Webpack; verify the documented development command separately when checking setup.
+
 The versioned migrations include Better Auth, shop membership, and catalog tables. Generate future migrations after changing the Drizzle schema with `pnpm db:generate`, review the SQL, then apply them with `pnpm db:migrate`.
 
 ## Checks
@@ -47,5 +62,9 @@ pnpm test:unit
 |---|---|
 | `DATABASE_URL` | Pooled Neon URL for application connections; hostname includes `-pooler`. |
 | `DATABASE_URL_UNPOOLED` | Direct Neon URL for migrations; same database, without `-pooler`. |
+| `BETTER_AUTH_URL` | Public app origin used by Better Auth, such as `http://localhost:3000`. |
+| `BETTER_AUTH_SECRET` | Server-only random secret of at least 32 characters. |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | Server-side GitHub OAuth app credentials. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Server-side Google OAuth app credentials. |
 
 The app validates that both database URLs use PostgreSQL and identify the same Neon database and role. Missing or mismatched database configuration shows setup guidance without returning credentials or raw driver errors.
