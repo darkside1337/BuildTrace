@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BuildTrace
 
-## Getting Started
+BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup.
 
-First, run the development server:
+## Requirements
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 24
+- pnpm 12.6.0
+- One Neon PostgreSQL database for local development and tests
+
+## Local setup
+
+Install packages and create a local environment file:
+
+```sh
+pnpm install
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In Neon, open **Connect** for your database and copy its pooled URL into `DATABASE_URL`. Turn connection pooling off in the Connect dialog and copy that direct URL into `DATABASE_URL_UNPOOLED`. Both URLs must point to the same database and role. Keep your environment file private; `.env*` files are ignored by Git. The matching pair is required for both `pnpm db:generate` and `pnpm db:migrate`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+If you already have a `.env` file, add or update these two variables there instead of copying over it. Next.js loads `.env.local` ahead of `.env`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply versioned migrations and start the app:
 
-## Learn More
+```sh
+pnpm db:migrate
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+The versioned migrations include Better Auth, shop membership, and catalog tables. Generate future migrations after changing the Drizzle schema with `pnpm db:generate`, review the SQL, then apply them with `pnpm db:migrate`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Checks
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Run database-read-only local checks without applying migrations or writing database fixtures (build and test artifacts may be written locally):
 
-## Deploy on Vercel
+```sh
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm build
+pnpm test:unit
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | Pooled Neon URL for application connections; hostname includes `-pooler`. |
+| `DATABASE_URL_UNPOOLED` | Direct Neon URL for migrations; same database, without `-pooler`. |
+
+The app validates that both database URLs use PostgreSQL and identify the same Neon database and role. Missing or mismatched database configuration shows setup guidance without returning credentials or raw driver errors.
