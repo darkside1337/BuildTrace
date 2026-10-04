@@ -11,7 +11,7 @@ export default async function SignInPage() {
     const session = await getAuth().api.getSession({ headers: await headers() });
     signedIn = Boolean(session);
   } catch { /* Keep sign-in available when auth is misconfigured. */ }
-  if (signedIn) redirect("/");
+  if (signedIn) redirect("/inventory");
 
   return (
     <AppShell showConnectionRefresh={false}>

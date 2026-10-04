@@ -99,6 +99,7 @@ export function AppShell({
             </SheetHeader>
             <nav aria-label="Primary navigation" className="p-4">
               <NavigationLink href="/" label="Home" active={activeHref === "/"} onNavigate={() => setNavigationOpen(false)} />
+              <NavigationLink href="/inventory" label="Inventory" active={activeHref === "/inventory"} onNavigate={() => setNavigationOpen(false)} />
             </nav>
             {showSignOut ? <div className="border-t px-5 py-4"><SignOutButton /></div> : null}
           </SheetContent>
@@ -113,6 +114,7 @@ export function AppShell({
           </p>
           <div className="flex flex-col gap-1">
             <NavigationLink href="/" label="Home" active={activeHref === "/"} />
+            <NavigationLink href="/inventory" label="Inventory" active={activeHref === "/inventory"} />
           </div>
         </nav>
         <div className="mt-auto border-t pt-4">

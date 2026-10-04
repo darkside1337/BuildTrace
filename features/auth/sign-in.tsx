@@ -14,7 +14,7 @@ export function SignInOptions() {
     try {
       const result = await authClient.signIn.social({
         provider,
-        callbackURL: "/",
+        callbackURL: "/inventory",
         errorCallbackURL: "/sign-in",
       });
       if (result.error) {

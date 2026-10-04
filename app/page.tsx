@@ -43,13 +43,15 @@ export default function Home() {
             </p>
           </div>
           <div>
-            <p className="text-sm font-semibold">Then, sign in to your shop</p>
+            <p className="text-sm font-semibold">Then, build the shop catalog</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Sign in with a GitHub or Google identity provisioned for your shop.
+              Sign in with an authorized shop account to create and manage the
+              catalog. Creating a part does not add stock.
             </p>
           </div>
           <div className="flex flex-wrap items-start gap-3 sm:col-span-2">
             <Button nativeButton={false} render={<Link href="/sign-in" />} className="min-h-11">Sign in</Button>
+            <Button nativeButton={false} render={<Link href="/inventory" />} variant="outline" className="min-h-11">Open Inventory</Button>
           </div>
         </section>
 

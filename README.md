@@ -1,6 +1,6 @@
 # BuildTrace
 
-BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup. OAuth-only sign-in grants access to provisioned shop accounts.
+BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup. Phase 01 adds OAuth-only shop access and a scoped catalog for creating, finding, editing, and archiving parts. Creating a catalog part does not create stock.
 
 ## Requirements
 
