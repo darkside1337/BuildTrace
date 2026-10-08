@@ -43,7 +43,7 @@ pnpm bootstrap:owner -- --shop-name "Example PC Shop" \
 
 The command can be rerun with the same identities. It creates no public sign-up route and grants no access based on email alone. Then open `/sign-in` and choose GitHub or Google.
 
-`pnpm dev` uses Next.js's default Turbopack bundler. The production build and browser-test servers explicitly use Webpack; verify the documented development command separately when checking setup.
+`pnpm dev` and `pnpm build` use Next.js's default Turbopack bundler. The regular connection-state browser checks start isolated Webpack development servers.
 
 The versioned migrations include Better Auth, shop membership, and catalog tables. Generate future migrations after changing the Drizzle schema with `pnpm db:generate`, review the SQL, then apply them with `pnpm db:migrate`.
 
