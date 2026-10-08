@@ -25,49 +25,37 @@ test("shows database status and offers a working retry", async ({ page }) => {
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
+  await expect(page.getByRole("link", { name: "Open Inventory", exact: true })).toHaveAttribute("href", "/inventory");
 });
 
-test("keeps catalog routes behind sign-in", async ({ page }) => {
+test("keeps catalog routes behind sign-in", async ({ page }, testInfo) => {
   for (const route of [
     "/inventory",
     "/inventory/00000000-0000-4000-8000-000000000001/edit",
   ]) {
-    await page.goto(route);
+    await page.goto(route, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/sign-in/);
     await expect(page.getByRole("heading", { name: "Sign in to your shop" })).toBeVisible();
   }
+  await expect(page.getByRole("link", { name: "Back to Home", exact: true })).toHaveAttribute("href", "/");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: testInfo.outputPath("sign-in.png"), fullPage: true });
 });
 
-test("mobile navigation closes after Home activation and Escape", async ({
-  page,
-}, testInfo) => {
-  test.skip(!testInfo.project.name.includes("mobile"));
+test("public headers provide direct links without a workspace menu", async ({ page }) => {
   await page.goto("/");
-  const menuButton = page.getByRole("button", { name: "Open navigation" });
-  await menuButton.focus();
-  await page.keyboard.press("Enter");
-
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("heading", { name: "BuildTrace" })).toBeVisible();
-  const homeLink = dialog.getByRole("link", { name: "Home" });
-  await expect(homeLink).toHaveAttribute("href", "/");
-  await expect(homeLink).toHaveAttribute("aria-current", "page");
-
-  await homeLink.click();
-  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0);
+  await page.locator("header").getByRole("link", { name: "Sign in", exact: true }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(page.getByRole("button", { name: "Open navigation" })).toHaveCount(0);
+  await expect(page.locator("header").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(0);
+  await page.getByRole("link", { name: "Back to Home", exact: true }).click();
   await expect(page).toHaveURL("/");
+});
 
-  await menuButton.click();
-  await expect(dialog).toBeVisible();
-  await homeLink.focus();
-  await expect(homeLink).toBeFocused();
-  await page.keyboard.press("Enter");
-  await expect(dialog).toBeHidden();
-  await expect(page).toHaveURL("/");
 
-  await menuButton.click();
-  await expect(dialog).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(dialog).toBeHidden();
+test("removed mock routes return 404", async ({ request }) => {
+  for (const route of ["/design-lab/receiving", "/prototypes/swiss-shell"]) {
+    expect((await request.get(route)).status()).toBe(404);
+  }
 });

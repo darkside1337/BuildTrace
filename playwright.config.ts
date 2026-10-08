@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 function appServer(mode: string, port: number) {
   return {
-    command: `node tests/e2e-server.mjs ${mode}`,
+    command: `node tests/helpers/e2e-server.mjs ${mode}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: false,
     timeout: 120_000,
