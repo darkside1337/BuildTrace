@@ -3,6 +3,7 @@ BuildTrace is a portfolio web app for independent PC parts shops, tracing compon
 Package manager: pnpm
 
 For product scope, workflows, and acceptance criteria, see docs/PRD.md.
+For the target MVP navigation, screen responsibilities, and connected journeys, see docs/APPLICATION_MAP.md. It does not describe current implementation or final routes.
 For feature boundaries, shop isolation, stock transactions, and server-side access checks, see docs/ARCHITECTURE.md.
 For phased tasks and current progress, see docs/ROADMAP.md.
 For visual design, responsive layouts, and component usage, see DESIGN.md.

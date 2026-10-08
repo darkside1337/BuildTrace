@@ -2,6 +2,8 @@
 
 BuildTrace is a portfolio app for independent PC parts shops, tracing components from receiving through custom builds and warranty lookup. Phase 01 adds OAuth-only shop access and a scoped catalog for creating, finding, editing, and archiving parts. Creating a catalog part does not create stock.
 
+The [target application map](./docs/APPLICATION_MAP.md) shows the intended MVP navigation, screens, and connected journeys. It is a target, not a description of the current app or a final route specification; [the roadmap](./docs/ROADMAP.md) tracks delivery.
+
 ## Requirements
 
 - Node.js 24
