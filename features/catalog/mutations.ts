@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNotNull, isNull } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import { requireDatabase } from "@/lib/db";
 import { assertCurrentShopAccess, type ShopContext } from "@/lib/auth/context";
@@ -83,6 +83,22 @@ export async function archiveProduct(context: ShopContext, productId: string) {
     eq(products.id, productId),
     eq(products.shopId, context.shopId),
     isNull(products.archivedAt),
+  )).returning({ id: products.id });
+
+  return product ?? null;
+}
+
+export async function restoreProduct(context: ShopContext, productId: string) {
+  await assertCurrentShopAccess(context);
+  const [product] = await requireDatabase().update(products).set({
+    archivedBy: null,
+    archivedAt: null,
+    updatedBy: context.actorId,
+    updatedAt: new Date(),
+  }).where(and(
+    eq(products.id, productId),
+    eq(products.shopId, context.shopId),
+    isNotNull(products.archivedAt),
   )).returning({ id: products.id });
 
   return product ?? null;

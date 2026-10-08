@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { AccessError, requireShopContext } from "@/lib/auth/context";
-import { archiveProduct, createProduct, updateProduct } from "@/features/catalog/mutations";
+import { archiveProduct, createProduct, restoreProduct, updateProduct } from "@/features/catalog/mutations";
 import { catalogFormSchema, productIdSchema } from "@/features/catalog/schemas";
 import type { SaveResult } from "@/features/catalog/types";
 
@@ -103,4 +103,28 @@ export async function archiveProductAction(
   revalidatePath("/inventory");
   revalidatePath(`/inventory/${id.data}`);
   return { ok: true, productId: id.data, message: "Part archived." };
+}
+
+export async function restoreProductAction(
+  productId: string,
+  previous: SaveResult | null,
+  formData: FormData,
+): Promise<SaveResult> {
+  void previous;
+  void formData;
+  const id = productIdSchema.safeParse(productId);
+  if (!id.success) return { ok: false, message: "This part could not be found." };
+
+  try {
+    const context = await requireShopContext();
+    const restored = await restoreProduct(context, id.data);
+    if (!restored) return { ok: false, message: "This archived part could not be found." };
+  } catch (error) {
+    const denied = accessFailure(error);
+    if (denied) return denied;
+    return { ok: false, message: "Restoring could not be confirmed. Reload before retrying." };
+  }
+  revalidatePath("/inventory");
+  revalidatePath(`/inventory/${id.data}`);
+  return { ok: true, productId: id.data, message: "Part restored." };
 }
