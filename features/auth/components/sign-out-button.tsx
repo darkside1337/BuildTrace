@@ -1,11 +1,14 @@
 "use client";
 
+import { toast } from "sonner";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
-export function SignOutButton() {
+export function SignOutButton({ beforeSignOut, menu = false }: { beforeSignOut?: (execute: () => void) => void; menu?: boolean } = {}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +21,7 @@ export function SignOutButton() {
       if (result.error) {
         setPending(false);
         setError("Sign-out did not complete. Please retry.");
+        if (menu) toast.error("Sign-out did not complete. Please retry.");
         return;
       }
       router.replace("/sign-in");
@@ -25,22 +29,23 @@ export function SignOutButton() {
     } catch {
       setPending(false);
       setError("Sign-out did not complete. Please retry.");
+        if (menu) toast.error("Sign-out did not complete. Please retry.");
     }
   }
 
   return (
     <div>
-      <Button
+      {menu ? <DropdownMenuItem disabled={pending} onClick={() => beforeSignOut ? beforeSignOut(() => { void signOut(); }) : void signOut()}>{pending ? "Signing out…" : "Sign out"}</DropdownMenuItem> : <Button
         type="button"
         variant="outline"
         size="sm"
         className="min-h-11"
         disabled={pending}
-        onClick={() => void signOut()}
+        onClick={() => beforeSignOut ? beforeSignOut(() => { void signOut(); }) : void signOut()}
       >
         {pending ? "Signing out…" : "Sign out"}
-      </Button>
-      {error ? <p role="alert" className="mt-2 text-xs text-destructive">{error}</p> : null}
+      </Button>}
+      {error ? <Alert variant="destructive" className="mt-2"><AlertDescription>{error}</AlertDescription></Alert> : null}
     </div>
   );
 }

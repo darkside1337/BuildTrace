@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import { LoaderCircle } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 export function SignInOptions() {
@@ -31,12 +34,12 @@ export function SignInOptions() {
     <div className="flex w-full flex-col gap-3">
       <Button
         type="button"
-        variant="default"
-        className="min-h-11 justify-center gap-2"
+        variant="outline"
+        className="min-h-11 justify-center gap-2 bg-card text-foreground"
         disabled={pendingProvider !== null}
         onClick={() => void signIn("github")}
       >
-        <span aria-hidden="true" data-icon="inline-start" className="text-xs font-bold">GH</span>
+        {pendingProvider === "github" ? <LoaderCircle aria-hidden="true" data-icon="inline-start" className="animate-spin" /> : <ProviderIcon provider="github" />}
         {pendingProvider === "github" ? "Opening GitHub…" : "Continue with GitHub"}
       </Button>
       <Button
@@ -46,10 +49,24 @@ export function SignInOptions() {
         disabled={pendingProvider !== null}
         onClick={() => void signIn("google")}
       >
-        <span aria-hidden="true" className="font-semibold">G</span>
+        {pendingProvider === "google" ? <LoaderCircle aria-hidden="true" data-icon="inline-start" className="animate-spin" /> : <ProviderIcon provider="google" />}
         {pendingProvider === "google" ? "Opening Google…" : "Continue with Google"}
       </Button>
-      {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+      {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
     </div>
+  );
+}
+
+function ProviderIcon({ provider }: { provider: "github" | "google" }) {
+  return (
+    <Image
+      src={provider === "github" ? "/brand/github-mark.png" : "/brand/google-g-logo.png"}
+      alt=""
+      aria-hidden="true"
+      data-icon="inline-start"
+      width={20}
+      height={20}
+      className="size-5"
+    />
   );
 }
