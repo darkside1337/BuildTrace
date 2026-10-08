@@ -4,6 +4,14 @@ BuildTrace is a portfolio app for independent PC parts shops, tracing components
 
 The [target application map](./docs/APPLICATION_MAP.md) shows the intended MVP navigation, screens, and connected journeys. It is a target, not a description of the current app or a final route specification; [the roadmap](./docs/ROADMAP.md) tracks delivery.
 
+`docs/PRD.md` is the product authority. Root [`PRODUCT.md`](./PRODUCT.md) is retained Impeccable-derived product context alongside [`DESIGN.md`](./DESIGN.md). Design research and verification artifacts in `reports/` are retained evidence; `.impeccable/` keeps durable configuration and briefs while generated runtime state is ignored.
+
+## Design and current screens
+
+The approved direction is **Trace / Ledger**: warm paper surfaces, dark ink, restrained blue actions, fine rules, Newsreader headings, DM Sans interface text, and IBM Plex Mono technical identifiers. The Trace raster mark lives in `public/brand/`; use Lucide React for interface and category icons. The catalog remains backed by saved shop records, and creating a product does not create stock. See [DESIGN.md](./DESIGN.md) for tokens and responsive rules. CSV import is deferred until its roadmap phase is implemented.
+
+[DESIGN.md](./DESIGN.md) owns visual guidance. Edit shared semantic tokens in `app/globals.css`, shared shadcn/ui primitives backed by Base UI in `components/ui/`, and route frames in `app/(workspace)/layout.tsx`, `app/page.tsx`, and `app/sign-in/page.tsx`; workspace controls in `features/workspace/components/workspace-menu.tsx`; and shared page headers in `components/page-header.tsx`. Feature-specific UI lives in each feature's `components/` directory, while its actions, queries, mutations, schemas, and types remain at the feature root. Use Tailwind semantic utilities, 44px minimum touch targets, and 16px field text on phones. Keep prototype-only import and stock controls out of production behavior.
+
 ## Requirements
 
 - Node.js 24
@@ -43,7 +51,7 @@ pnpm bootstrap:owner -- --shop-name "Example PC Shop" \
 
 The command can be rerun with the same identities. It creates no public sign-up route and grants no access based on email alone. Then open `/sign-in` and choose GitHub or Google.
 
-`pnpm dev` and `pnpm build` use Next.js's default Turbopack bundler. The regular connection-state browser checks start isolated Webpack development servers.
+`pnpm dev` and `pnpm build` use Next.js's default Turbopack bundler. The regular connection-state browser checks start isolated Webpack development servers; the Ledger browser checks run against a production `next start` server after `pnpm build`.
 
 The versioned migrations include Better Auth, shop membership, and catalog tables. Generate future migrations after changing the Drizzle schema with `pnpm db:generate`, review the SQL, then apply them with `pnpm db:migrate`.
 
@@ -84,3 +92,7 @@ The app validates that both database URLs use PostgreSQL and identify the same N
 ## CI
 
 The GitHub Actions workflow runs lint, type checking, build, unit tests, migration/integration checks, and browser checks. Configure `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET`, and both provider credential pairs as repository secrets. Neon checks share the development database and are serialized; tests must not reset or truncate shared data.
+
+### Ledger workflow verification
+
+Run `pnpm build` followed by `pnpm test:e2e:ledger` to test the production build on port 3336. The tests use Better Auth’s test-only session utilities and uniquely owned Neon fixtures; they clean up only their own rows and run one worker at a time. Configure the documented database and auth environment first. No production authentication bypass is installed.

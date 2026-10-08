@@ -12,14 +12,12 @@
 
 # testing
 /coverage
-/test-results
-/playwright-report
+/test-results/
+/playwright-report/
+/blob-report/
 
 # local roadmap
 /docs/ROADMAP.md
-
-# local design experiments (served by Next.js during development)
-/app/design-lab/
 
 # next.js
 /.next/
@@ -50,3 +48,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.plans
+
+# Impeccable local tooling and artifacts
+/.impeccable/

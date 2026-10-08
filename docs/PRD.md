@@ -1,8 +1,8 @@
 # BuildTrace — Product Requirements Document
 
-**Version:** 1.1
-**Date:** October 1, 2026
-**Status:** Initial draft
+**Version:** 1.2
+**Date:** October 8, 2026
+**Status:** Updated for Trace / Ledger integration and catalog parity
 **Purpose:** Define the portfolio MVP and its acceptance criteria.
 
 ## 1. Product summary
@@ -91,7 +91,7 @@ Timing goals should be revisited after the first usable prototype. Do not substi
 
 ### 4.1 Included
 
-- Shop-owned parts catalog with manual creation and CSV import.
+- Shop-owned parts catalog with manual creation and CSV import, manufacturer/category/tracking filters, stable sorting, result counts, archive and restore.
 - Supplier contacts and receiving history.
 - Draft shipments, partial receiving, quantities, purchase costs, serial capture, and CSV-assisted receipt entry.
 - Inventory balances, availability, low-stock indicators, counts, and reasoned adjustments.
@@ -112,13 +112,14 @@ Timing goals should be revisited after the first usable prototype. Do not substi
 - Extracting receipt lines from PDF invoices, images, spreadsheets other than CSV, or other supplier documents.
 - Subscription billing, marketing automation, and advanced analytics.
 
+
 A sale record documents a completed build handover. It does not imply that BuildTrace collected payment, calculated tax, or issued an invoice.
 
 ## 5. Core journeys
 
 ### 5.1 Establish the catalog and opening stock
 
-1. Staff adds a product manually or imports product rows from CSV.
+1. Staff adds a product manually or imports product rows from CSV once that deferred phase is implemented.
 2. Staff reviews category, model identifiers, prices, and tracking mode.
 3. Staff records opening stock through an explicit opening-stock action, including serials where required.
 4. Inventory displays the resulting balance and its opening-stock movement.
@@ -171,13 +172,16 @@ Each product supports a name, category, manufacturer, model, internal SKU, manuf
 - Categories cover CPUs, GPUs, motherboards, RAM, storage, cases, power supplies, cooling, and accessories.
 - Internal SKU is unique within the shop. Barcode and manufacturer part number identify a model, not a physical unit.
 - Specifications are descriptive; their presence does not imply compatibility validation.
-- Staff can search by name, SKU, model, manufacturer part number, or barcode and filter by category, tracking mode, and low-stock status.
+- Staff can search by name, SKU, model, manufacturer, manufacturer part number, or barcode; filter by manufacturer, category, tracking mode, and low-stock status; and sort using an explicit allowlist of stable catalog fields. Show a result count that matches the applied filters.
 - Product detail shows quantities, serialized units where applicable, and movement history.
-- Referenced products can be archived; historical receipts and builds retain their model information.
+- Referenced products can be archived and restored by authorized shop members; historical receipts and builds retain their model information. Restore clears the current archive marker and records the responsible actor.
+- Product forms group every supported catalog field into clear sections. Optional fields remain available without being hidden behind an “advanced” disclosure.
 
 **Acceptance:** A duplicate SKU produces a clear validation error. Archived products cannot be selected for new receiving or allocations. Changing reference prices does not alter historical costs or sale records.
 
 ### FR-02 — CSV catalog import
+
+Deferred from the Ledger integration pass; retained in the portfolio MVP roadmap.
 
 - Provide a downloadable template and a preview before committing.
 - Import product fields only; opening stock is a separate action.
@@ -185,7 +189,7 @@ Each product supports a name, category, manufacturer, model, internal SKU, manuf
 - MVP imports create new products; existing SKU matches are conflicts rather than silent updates.
 - Permit commit only when the selected batch is valid, and summarize the result.
 
-**Acceptance:** Invalid batches create no products. Reimporting the same SKUs reports conflicts. Serial units and balances cannot be created accidentally by catalog import.
+**Acceptance when scheduled:** Invalid batches create no products. Reimporting the same SKUs reports conflicts. Serial units and balances cannot be created accidentally by catalog import. Until then, do not expose a simulated import action.
 
 ### FR-03 — Suppliers and receiving
 
@@ -201,6 +205,8 @@ Each product supports a name, category, manufacturer, model, internal SKU, manuf
 
 ### FR-03a — CSV receiving import
 
+Implemented in its later roadmap phase, not in this visual integration pass.
+
 - Offer a downloadable CSV template and upload within a draft shipment or receipt. The supplier is selected in the receiving workflow, not inferred from the file.
 - Match imported rows to existing, active catalog products by shop SKU. Import must not create products or suppliers.
 - Template fields are SKU, received quantity, unit purchase cost, and serial number. For a serialized product, use one row per physical unit with quantity 1 and a serial. For a quantity-tracked product, use a positive whole-number quantity and leave serial blank.
@@ -209,7 +215,7 @@ Each product supports a name, category, manufacturer, model, internal SKU, manuf
 - Importing a valid file changes only the draft. The existing receipt review and posting action remains mandatory, including expected-versus-received discrepancy acknowledgement when applicable.
 - An invalid import leaves the current draft unchanged. Repeated upload of the same rows warns about duplicates instead of silently adding them twice.
 
-**Acceptance:** Upload alone creates no stock movements. A valid CSV can populate a draft containing both serialized and quantity-tracked parts. An invalid CSV cannot partly change the draft or post a receipt. Posting imported rows follows the same all-or-nothing and retry-safe rules as manual receiving.
+**Acceptance when scheduled:** Upload alone creates no stock movements. A valid CSV can populate a draft containing both serialized and quantity-tracked parts. An invalid CSV cannot partly change the draft or post a receipt. Posting imported rows follows the same all-or-nothing and retry-safe rules as manual receiving. Until then, do not expose a simulated import action.
 
 ### FR-04 — Inventory and counts
 
@@ -325,7 +331,7 @@ Substitutions before delivery must preserve complete allocations or return the b
 | Main page | Primary content and actions |
 |---|---|
 | Overview | Attention items, recent activity, workflow entry points |
-| Inventory | Catalog, balances, units, search, Add part, Import CSV, Count stock, Adjust stock |
+| Inventory | Catalog, balances, units, search, Add part, Import CSV when implemented, Count stock, Adjust stock |
 | Receiving | Shipments, manual or CSV draft entry, receipt review, partial receiving, posting history |
 | Builds | Active and delivered builds, creation, reservation, assembly, delivery |
 | Customers | Customer list, basic contacts, linked PCs and builds |
@@ -334,7 +340,7 @@ Substitutions before delivery must preserve complete allocations or return the b
 
 Settings sits at the bottom of the main navigation. Sign-in and demo entry are supporting screens.
 
-Required detail views: product, serialized unit, shipment, build, customer, and supplier. Forms may use pages, dialogs, or drawers according to available space; catalog and receiving CSV imports are actions within their respective pages, not sidebar entries.
+Required detail views: product, serialized unit, shipment, build, customer, and supplier. Forms may use pages, dialogs, or drawers according to available space; if CSV imports are scheduled, they are actions within their respective pages, not sidebar entries. Do not show import actions before those workflows are implemented.
 
 ### 8.1 Responsive and interaction requirements
 
@@ -346,10 +352,14 @@ Required detail views: product, serialized unit, shipment, build, customer, and 
 - Provide loading, empty, validation, success, and recoverable error states throughout the workflow.
 - On connection loss, preserve unsent input where practical, show that saving failed, and allow an explicit retry. Do not claim stock was saved or queue offline writes.
 - Use sufficient contrast, visible focus, labeled fields, and text alongside status colors. Critical errors must explain how to recover.
+- Use [DESIGN.md](../DESIGN.md) as the visual authority: Trace / Ledger, one light palette, local Newsreader, DM Sans, and IBM Plex Mono fonts, Lucide React icons, 44px minimum touch targets, and 16px text in phone inputs.
+- Product detail and create/edit forms may open in URL-addressable panels on wide screens; direct navigation and refresh present the same workflow as a full page; soft navigation uses a full-width panel on phones. Preserve drafts during in-app navigation and require a clear discard decision before leaving changed form data.
 
-### 8.2 Design reference
+### 8.2 Design authority and workflow reference
 
-MondayPOS was selected in the planning conversation as a workflow and presentation reference: connected shop activity, readable inventory views, and PC component history. It is inspiration, not the MVP feature checklist or a design to copy.
+[DESIGN.md](../DESIGN.md) is the sole authority for the approved Trace / Ledger visual direction, tokens, typography, icon usage, and responsive component treatment. The prototype is a visual reference; saved application data and behavior follow this PRD.
+
+MondayPOS is a workflow reference for connected shop activity, readable inventory views, and PC component history. It is inspiration, not the MVP feature checklist or a visual direction to copy.
 
 Reference links: [MondayPOS](https://mondaypos.com/) and [computer shop workflow](https://mondaypos.com/industries/computer-shop). Their current contents do not define BuildTrace requirements.
 
@@ -424,7 +434,7 @@ No delivery dates are committed. Sequence follows workflow dependencies, with da
 The portfolio MVP is ready when:
 
 - The complete receiving-to-warranty walkthrough works without editing database records manually.
-- Catalog and receiving CSV imports, manual receiving, stock counts, reservations, substitutions, cancellation, and delivery meet their acceptance criteria.
+- Catalog and receiving CSV imports, manual receiving, stock counts, reservations, substitutions, cancellation, and delivery meet their acceptance criteria. CSV is deferred from this visual integration pass, not removed from the portfolio MVP.
 - Product creation adds no stock, balances reconcile with movements, and serialized units cannot be allocated twice.
 - Failed or repeated writes do not create partial or duplicate stock changes.
 - Delivered builds retain their component, customer, supplier, and sale history.
